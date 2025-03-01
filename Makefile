@@ -66,8 +66,8 @@ all: ppmdiff 40image
 ppmdiff: ppmdiff.o uarray2.o a2plain.o
 	$(CC) $(LDFLAGS) $^ -o $@ $(LDLIBS)
 
-40image: 40image.o uarray2.o uarray2b.o a2plain.o
+40image: 40image.o uarray2.o uarray2b.o a2plain.o compress40.o floating.o
 	$(CC) $(LDFLAGS) $^ -o $@ $(LDLIBS)
 
 clean:
-	rm -f ppmdiff 40image *.o
+	rm -f ppmdiff 40image *.o 

@@ -167,8 +167,9 @@ static void compare_image(Pnm_ppm image1, Pnm_ppm image2)
 float find_E(Pnm_ppm image1, Pnm_ppm image2, struct dimensions limits)
 {
         A2Methods_T methods = uarray2_methods_plain; 
-        long msdNum = 0;
-
+        float msdNum = 0;
+        float denom1 = image1->denominator;
+        float denom2 = image2->denominator;
 
         for (int i = 0; i < limits.width; i++)
         {
@@ -179,26 +180,21 @@ float find_E(Pnm_ppm image1, Pnm_ppm image2, struct dimensions limits)
                         struct Pnm_rgb *rgb2 = 
                                               methods->at(image2->pixels, i, j);
 
-                        int dred = rgb1->red - rgb2->red;
-                        int dgreen = rgb1->green - rgb2->green;
-                        int dblue = rgb1->blue - rgb2->blue;
+                        float dred = (rgb1->red / denom1) - (rgb2->red / denom2);
+                        float dgreen = (rgb1->green / denom1) - (rgb2->green / denom2);
+                        float dblue = (rgb1->blue / denom1) - (rgb2->blue / denom2);
 
                         //fprintf(stderr, "[%d, %d, %d]\n", dred, dgreen, dblue);
                         //fprintf(stderr, "[%d, %d]\n", rgb1->red, rgb2->red);
 
-                        int deltaMSDN = dred * dred;
-                        deltaMSDN += dgreen * dgreen;
-                        deltaMSDN += dblue * dblue;
-
-                        msdNum += deltaMSDN;
+                        msdNum += pow(dred, 2) + pow(dgreen, 2) + pow(dblue, 2);
                 }
                 
         }
         
         //fprintf(stderr, "width = %d, height = %d\n", limits.width, limits.height);
-        double msdDenom = 3 * limits.width * limits.height * image1->denominator * image2->denominator;
-        double msd = msdNum / msdDenom;
-        double rmsd = sqrt(msd);
+        float msdDenom = 3 * limits.width * limits.height;
+        float rmsd = sqrt(msdNum / msdDenom);
         //fprintf(stderr, "[msdNum, msdDenom, msd] : [%ld, %.0f, %f]\n", msdNum, msdDenom, msd);
         return rmsd;
 }

@@ -195,7 +195,7 @@
  /* map_row_major
   *
   * Call the given function for all elements of the array, iterating in row-major
-  * order.
+  * order.m
   *
   * Parameters
   *      A2 uarray2      a 2D array
