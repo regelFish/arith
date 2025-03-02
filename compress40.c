@@ -16,6 +16,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "blockPack.h"
 
 /*A struct to hold the dimensions and pixels of a trimmed pixel raster
   that will be used to replace the original pixel raster*/
@@ -125,12 +126,26 @@ extern void compress40(FILE *input)
         /* TODO: decide whether we need other methods*/
         A2Methods_T methods = uarray2_methods_plain;
         assert(methods != NULL);
+
+        /* Reading the given image */
         Pnm_ppm image = Pnm_ppmread(input, methods);
+        
+        /* trimming the image to an even length */
         trim(&image, methods);
+        
+        /* converting the image to video component */
         A2 vComp = RGBtoVC(image->pixels, methods, image->denominator);
         methods->free(&(image->pixels));
-        A2 rgb = VCtoRGB(vComp, methods, image->denominator);
+
+        /* prepare video component values to be packed into a 32-bit word */
+        A2 pack = pack2by2(vComp, methods);
         methods->free(&vComp);
+
+        /* TODO: REMOVE TESTING FUNCTIONS HERE */
+        A2 unpack = unpack2by2(pack, methods);
+        methods->free(&pack);
+        A2 rgb = VCtoRGB(unpack, methods, image->denominator);
+        methods->free(&unpack);
         image->pixels = rgb;
         Pnm_ppmwrite(stdout, image);
         Pnm_ppmfree(&image);
