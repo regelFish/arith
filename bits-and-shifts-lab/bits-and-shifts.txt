@@ -1,0 +1,53 @@
+pack2by2 maps through the pixel raster. It calls apply2by2.
+
+apply2by2 calls calc2by2
+
+calc2by2 get the video components of four pixels:
+ [col][row],  [col+1][row], [col][row+1], [col+1][row+1]
+Then it gets the average of pb and pr.
+Then it converts avgPb and avgPr into unsigned pb and pr using the given functions.
+Then it creates myYs yBlock with the values of the vidComps taken.
+Then it calls discreteTrans on the yBlock.
+
+discreteTrans performs the discrete transformation on yBlock and returns a pack.
+It creates a, b, c, d and puts them in an abcd struct abcdTrans.
+Then it calls and returns quantabcd(abcdTrans)
+
+quantabcd(abcdTrans) returns a pack of values.
+a pack is a struct with unsigned a, int b, int c, int d.
+They should be scaled integers. They seem correct.
+
+This should compress the image.
+
+A compressed image is made up of structs of fullPacks.
+Each fullPack struct represents a 2-by-2 block of pixels.
+All pixels in the 2-by-2 block will have the same pb, pr values.
+
+
+Then, we unpack the compressed image.
+
+unpack2by2 maps through the pixel raster. It calls unApply2by2.
+
+unApply2by2 calls unCalc2by2 and creates a struct vidComp *comps.
+On the first iteration of the loop in unApply2by2, we set
+the 0,0 to 0 in comps.
+Then the inner loop executes again and it sets 1, 0 to comps 1.
+Then the inner loop executes again and it sets 0, 1 to 
+comps 2.
+Then the inner loop executes again and it sets 1, 1 to 
+comps 3.
+Then the col, row increment to 1.
+Okay, that seems correct.
+
+unCalc2by2 takes an array of fullPack structs (unsigned a, int b, int c, int d). It is called compPixel.
+We then get the averagePb from compPixel: compPixel.pb
+Then the unsigned averagePb compPixel.pr.
+We turn it back into a float using the given function.
+Then we turn the scaled, integered abcd back into unscaled floats abcd with unQuantabcd.
+
+unQuantabcd just divides the numbers by the amount we scaled them by.
+
+Then we turn those abcd values back into Y video components with discreteDetrans.
+
+discreteDetrans just does the inverse of the cosine functions we were told to do.
+

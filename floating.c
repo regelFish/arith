@@ -56,7 +56,14 @@ float toFloat(int num, int denom)
   */
 int unFloat(float num, int denom)
 {
-        return num * denom;
+        int result = num * denom;
+        if (result < 0) {
+                result = 0;
+        }
+        if (result > denom) {
+                result = denom;
+        }
+        return result;
 }
 
  /* toVideoComponent
@@ -114,6 +121,7 @@ struct vidComp toVideoComponent(struct Pnm_rgb rgb, int denom)
 struct Pnm_rgb toRGB(struct vidComp vComp, int denom)
 {
         struct Pnm_rgb rgb;
+
         rgb.red = unFloat(1.0 * vComp.y + 
                         0.0 * vComp.pb + 
                         1.402 * vComp.pr, denom);
@@ -173,7 +181,6 @@ void applyRGBtoVC(int col, int row, A2 uarray2, void *element, void *cl)
   *                               uarray2.
   *     int denomintator        : The maximum value associated with our input
   *                               rgb data.
-  *
   * Returns
   *     A2Methods_Uarray2: A Uarray2 with image data formated in the video 
   *                        component format.

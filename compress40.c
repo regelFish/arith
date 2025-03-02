@@ -129,7 +129,14 @@ extern void compress40(FILE *input)
         trim(&image, methods);
         A2 vComp = RGBtoVC(image->pixels, methods, image->denominator);
         methods->free(&(image->pixels));
+<<<<<<< Updated upstream
         A2 rgb = VCtoRGB(vComp, methods, image->denominator);
+=======
+
+        /* prepare video component values to be packed into a 32-bit word */
+        A2 pack = pack2by2(vComp, methods);
+
+>>>>>>> Stashed changes
         methods->free(&vComp);
         image->pixels = rgb;
         Pnm_ppmwrite(stdout, image);
