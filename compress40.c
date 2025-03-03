@@ -12,6 +12,7 @@
 #include "pnm.h"
 #include "a2methods.h"
 #include "a2plain.h"
+#include "blockPack.h"
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -69,8 +70,9 @@ void applyTrim(int col, int row, A2 uarray2, void *element, void *cl)
   *      None (void)
   *
   * Notes
-  *      May CRE if image is NULL.
-  *      No effect on image if both height and width are even.
+  *      Will CRE if image is NULL.
+  *      No effect on image if both height and width are even. In the case where
+  *      no trimming is needed, a pointer to the original image is returned. 
   *      
   */
 void trim(Pnm_ppm *image, A2Methods_T methods)
@@ -125,19 +127,26 @@ extern void compress40(FILE *input)
         /* TODO: decide whether we need other methods*/
         A2Methods_T methods = uarray2_methods_plain;
         assert(methods != NULL);
+
+        /* Reading the given image */
         Pnm_ppm image = Pnm_ppmread(input, methods);
+
+        /* trimmng the image to an even height and/or width */
         trim(&image, methods);
+
+        /* converting the image to video component */
         A2 vComp = RGBtoVC(image->pixels, methods, image->denominator);
         methods->free(&(image->pixels));
-<<<<<<< Updated upstream
-        A2 rgb = VCtoRGB(vComp, methods, image->denominator);
-=======
 
         /* prepare video component values to be packed into a 32-bit word */
         A2 pack = pack2by2(vComp, methods);
-
->>>>>>> Stashed changes
         methods->free(&vComp);
+        
+        /* TODO: Remove testing functions here.*/
+        A2 unpack = unpack2by2(pack, methods);
+        methods->free(&pack);
+        A2 rgb = VCtoRGB(unpack, methods, image->denominator);
+        methods->free(&unpack);
         image->pixels = rgb;
         Pnm_ppmwrite(stdout, image);
         Pnm_ppmfree(&image);

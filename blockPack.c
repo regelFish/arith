@@ -367,25 +367,26 @@ void unApply2by2(int col, int row, A2 uarray2, void *element, void *cl)
         free(comps);
 }
 
- /* pack2by2
-  *
-  * Calls the functions of blockPack to quantize the video component values of 
-  * a PPM image's pixel raster an prepare them to be packed into a 32-bit word.
-  *
-  * Parameters
-  *      A2 vComp               an array of vidComp structs that holds the video
-  *                             component values of the pixels of a PPM image.
-  *      A2Methods_T methods    a methods suite for creating new and accessing
-  *                             the values of a UArray2.
-  *
-  * Returns
-  *      TODO
-  *
-  * Notes
-  *      Will CRE if vComp is NULL.
-  *      Will CRE if methods is NULL.
-  *      
-  */
+/* pack2by2
+ *
+ * Calls the functions of blockPack to quantize the video component values of 
+ * a PPM image's pixel raster an prepare them to be packed into a 32-bit word.
+ *
+ * Parameters
+ *      A2 vComp               an array of vidComp structs that holds the video
+ *                             component values of the pixels of a PPM image.
+ *      A2Methods_T methods    a methods suite for creating new and accessing
+ *                             the values of a UArray2.
+ *
+ * Returns
+ *      Returns a Uarray2 containing the compressed image data in a struct.
+ *      
+ *
+ * Notes
+ *      Will CRE if vComp is NULL.
+ *      Will CRE if methods is NULL.
+ *      
+ */
 A2 pack2by2(A2 vComp, A2Methods_T methods)
 {
         assert(vComp != NULL);
