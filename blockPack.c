@@ -34,6 +34,8 @@ struct mappingCl {
         A2Methods_T methods;
 };
 
+A2 unEncode(A2 codeWords, A2Methods_T methods);
+
 /* quantabcd
  *
  * Quantizes the cosine coefficient values of a 2-by-2 block of pixels, turning
@@ -416,15 +418,16 @@ A2 pack2by2(A2 vComp, A2Methods_T methods)
         return newArr;
 }
 
-/* unpack2by2
+/* decode
  *
  * Calls the functions of blockPack to return the quantized values of video
  * components back into their unquantized states
  *
  * Parameters
- *      A2 packed              an array of fullPack structs
+ *      A2 codeWords           an array of unsigned 32-bit codewords containing
+ *                             the values of a, b, c, d, pb, and pr.
  *      A2Methods_T methods    a methods suite for creating new and accessing
- *                             the values of a UArray2
+ *                             the values of a UArray2.
  *
  * Returns
  *      A2 newArr              an array of vidComp structs containing the lossy
@@ -437,17 +440,19 @@ A2 pack2by2(A2 vComp, A2Methods_T methods)
  *      Will CRE if methods is NULL.
  *      
  */
-A2 unpack2by2(A2 packed, A2Methods_T methods)
+A2 decode(A2 codeWords, A2Methods_T methods)
 {
-        assert(packed != NULL);
+        assert(codeWords != NULL);
         assert(methods != NULL);
+
+        A2 packArr = unEncode(codeWords, methods);
         
-        int width = methods->width(packed);
-        int height = methods->height(packed);
+        int width = methods->width(packArr);
+        int height = methods->height(packArr);
         
         A2 newArr = methods->new(width * 2, height * 2, sizeof(struct vidComp));
         struct mappingCl bundle = {newArr, methods};
-        methods->map_default(packed, unApply2by2, &bundle);
+        methods->map_default(packArr, unApply2by2, &bundle);
         
         return newArr;
 }
@@ -557,9 +562,8 @@ void applyEncode(int col, int row, A2 uarray2, void *element, void *cl)
  * into 32-bit codewords
  *
  * Parameters
- *      A2 packArr             an array of fullPack structs that contains the
- *                             pixel information for a raster that is being
- *                             compressed
+ *      A2 vComp               an array of vidComp structs containing the video
+ *                             component values of the pixels of an image
  *      A2Methods_T methods    a methods suite for creating new and accessing
  *                             the values of a UArray2.
  *
@@ -573,11 +577,14 @@ void applyEncode(int col, int row, A2 uarray2, void *element, void *cl)
  *      Will CRE if methods is NULL.
  *      
  */
-A2 encode(A2 packArr, A2Methods_T methods)
+A2 encode(A2 vComp, A2Methods_T methods)
 {
-        assert(packArr != NULL);
+        assert(vComp != NULL);
         assert(methods != NULL);
+
         
+        A2 packArr = pack2by2(vComp, methods);
+
         int width = methods->width(packArr);
         int height = methods->height(packArr);
         
@@ -588,9 +595,9 @@ A2 encode(A2 packArr, A2Methods_T methods)
         return codeWords;
 }
 
-/* applyDecode TODO: Complete function contract
+/* applyunEncode TODO: Complete function contract
  *
- * Apply function that uses decode to unpack the values of a, b, c, and d, pb,
+ * Apply function that uses unencode to unpack the values of a, b, c, and d, pb,
  * and pr from a 32-bit code word.
  *
  * Parameters
@@ -615,7 +622,7 @@ A2 encode(A2 packArr, A2Methods_T methods)
  *      Will CRE if uarray2 is NULL
  *      
  */
-void applyDecode(int col, int row, A2 uarray2, void *element, void *cl)
+void applyunEncode(int col, int row, A2 uarray2, void *element, void *cl)
 {
         assert(element != NULL);
         assert(cl != NULL);
@@ -630,7 +637,7 @@ void applyDecode(int col, int row, A2 uarray2, void *element, void *cl)
                                           unPackCodeword(*(uint32_t *) element);
 }
 
-/* decode
+/* unEncode
  *
  * Reads 32-bit code words in sequence into an array of fullPack structs,
  * extracting the values of a, b, c, d, pb, and pr.
@@ -651,7 +658,7 @@ void applyDecode(int col, int row, A2 uarray2, void *element, void *cl)
  *      Will CRE if methods is NULL.
  *      
  */
-A2 decode(A2 codeWords, A2Methods_T methods)
+A2 unEncode(A2 codeWords, A2Methods_T methods)
 {
         assert(codeWords != NULL);
         assert(methods != NULL);
@@ -661,7 +668,7 @@ A2 decode(A2 codeWords, A2Methods_T methods)
         
         A2 packArr = methods->new(width, height, sizeof(struct fullPack));
         struct mappingCl bundle = {packArr, methods};
-        methods->map_default(codeWords, applyDecode, &bundle);
+        methods->map_default(codeWords, applyunEncode, &bundle);
         
         return packArr;
 }

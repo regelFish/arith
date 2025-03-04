@@ -41,7 +41,8 @@ struct trimInfo {
   *     None (void)
   * 
   * Notes
-  *     May CRE if element or cl are NULL.
+  *     Will CRE if element or cl are NULL.
+  *     Will cre if 
   *
   */
 void applyTrim(int col, int row, A2 uarray2, void *element, void *cl)
@@ -106,6 +107,53 @@ void trim(Pnm_ppm *image, A2Methods_T methods)
         }
 }
 
+ /* applyPrintCodewords
+  * 
+  * TODO: Description
+  * 
+  * Parameters
+  *      
+  *
+  * Returns
+  *      None (void)
+  *
+  * Notes
+  *      
+  *      
+  */
+void applyPrintCodewords(int col, int row, A2 uarray2, void *element, void *cl)
+{
+        (void) cl;
+        (void) row;
+        (void) col;
+        (void) uarray2;
+        assert(element != NULL);
+        for (int i = 0; i < 4; i++)
+        {
+                putchar(Bitpack_getu(*(uint32_t *) element, 8, i << 2));
+        }
+}
+
+ /* printCodeWords
+  * 
+  * TODO: Description
+  * 
+  * Parameters
+  *      
+  *
+  * Returns
+  *      None (void)
+  *
+  * Notes
+  *      
+  *      
+  */
+void printCodeWords(A2 codeWords, A2Methods_T methods)
+{
+        methods->map_default(codeWords, applyPrintCodewords, NULL);
+}
+
+
  /* compress40
   * 
   * TODO: Description
@@ -138,28 +186,27 @@ extern void compress40(FILE *input)
         A2 vComp = RGBtoVC(image->pixels, methods, image->denominator);
         methods->free(&(image->pixels));
 
-        /* prepare video component values to be packed into a 32-bit word */
-        A2 pack = pack2by2(vComp, methods);
+        /* 
+         * prepares video component values to be packed into a 32-bit word and
+         * packs a, b, c, d, pb, pr into 32-bit codewords
+         */
+        A2 codeWords = encode(vComp, methods);
         methods->free(&vComp);
 
-        /* Pack a, b, c, d, pb, pr into 32-bit codewords*/
-        A2 codeWords = encode(pack, methods);
-        methods->free(&pack);
+        fprintf(stdout, "COMP40 Compressed image format 2\n%u %u\n", 
+                                                   image->width, image->height);
+        printCodeWords(codeWords, methods);
 
         
         
         /* TODO: Remove testing functions here.*/
-        pack = decode(codeWords, methods);
+        vComp = decode(codeWords, methods);
         methods->free(&codeWords);
-        vComp = unpack2by2(pack, methods);
-        methods->free(&pack);
         image->pixels = VCtoRGB(vComp, methods, image->denominator);
         methods->free(&vComp);
-        Pnm_ppmwrite(stdout, image);
+        //Pnm_ppmwrite(stdout, image);
         Pnm_ppmfree(&image);
-        
-        // fprintf(stderr, "Bitpack_getu: %ld\n", Bitpack_getu(0x3f4, 6, 2)); // 0b 0011 1111 0100
-        // fprintf(stderr, "Bitpack_gets: %ld\n", Bitpack_gets(0x3f4, 6, 2)); // 0b 1111 1111 0100
+
 }
 
 extern void decompress40(FILE *input)
