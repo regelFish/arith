@@ -242,7 +242,7 @@ void applyVCtoRGB(int col, int row, A2 uarray2, void *element, void *cl)
         int denom = bundle.denom;
 
         *(struct Pnm_rgb *)methods->at(newArr, col, row) =
-                                      toRGB(*(struct vidComp *) element, denom);  
+                                      toRGB(*(struct vidComp *) element, denom);
 }
 
  /* VCtoRGB

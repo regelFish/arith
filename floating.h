@@ -1,3 +1,6 @@
+#ifndef FLOATING_H
+#define FLOATING_H
+
 #include "compress40.h"
 #include "pnm.h"
 #include "a2methods.h"
@@ -18,3 +21,5 @@ struct vidComp {
 
 A2 RGBtoVC(A2 pixels, A2Methods_T methods, int denominator);
 A2 VCtoRGB(A2 vComp, A2Methods_T methods, int denominator);
+
+#endif

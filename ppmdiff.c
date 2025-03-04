@@ -35,7 +35,6 @@ float find_E(Pnm_ppm image1, Pnm_ppm image2, struct dimensions limits);
 
 int main(int argc, char *argv[]) 
 {
-        
         assert(argc == 3);
         assert((strcmp(argv[1], "-") != 0) || (strcmp(argv[2], "-") != 0));
         Pnm_ppm image1 = read_from_input(argv[1], uarray2_methods_plain);
