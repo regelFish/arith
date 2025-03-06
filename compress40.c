@@ -139,7 +139,6 @@ extern void compress40(FILE *input)
 
         /* converting the image to video component */
         A2 vComp = RGBtoVC(image->pixels, methods, image->denominator);
-        methods->free(&(image->pixels));
 
         /* 
          * prepares video component values to be packed into a 32-bit word and
@@ -151,11 +150,8 @@ extern void compress40(FILE *input)
         fprintf(stdout, "COMP40 Compressed image format 2\n%u %u\n", 
                                                    image->width, image->height);
         printCodeWords(codeWords, methods);
-
-        
-        
-
-
+        methods->free(&codeWords);
+        Pnm_ppmfree(&image);
 }
 
 extern void decompress40(FILE *input)
@@ -164,15 +160,16 @@ extern void decompress40(FILE *input)
         A2Methods_T methods = uarray2_methods_plain;
         assert(methods != NULL);
         A2 codeWords = readCompressed(input, methods);
-        struct Pnm_ppm *image;
-        image->width = methods->width(codeWords);
-        image->height = methods->height(codeWords);
-        image->denominator = 255;
+        unsigned width = methods->width(codeWords) * 2;
+        unsigned height = methods->height(codeWords) * 2;
+        struct Pnm_ppm image = {width, height, 255, codeWords, methods};
         A2 vComp = decode(codeWords, methods);
         methods->free(&codeWords);
-        image->pixels = VCtoRGB(vComp, methods, image->denominator);
+        image.pixels = VCtoRGB(vComp, methods, image.denominator);
         methods->free(&vComp);
-        Pnm_ppmwrite(stdout, image);
-        Pnm_ppmfree(&image);
+        Pnm_ppmwrite(stdout, (struct Pnm_ppm *)&image);
+        methods->free(&(image.pixels));
+        // Pnm_ppmfree(&image);
+        //We need Pnm_ppm *image
 }
 

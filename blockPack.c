@@ -453,6 +453,7 @@ A2 decode(A2 codeWords, A2Methods_T methods)
         A2 newArr = methods->new(width * 2, height * 2, sizeof(struct vidComp));
         struct mappingCl bundle = {newArr, methods};
         methods->map_default(packArr, unApply2by2, &bundle);
+        methods->free(&packArr);
         
         return newArr;
 }
@@ -506,9 +507,13 @@ uint32_t packCodeword(struct fullPack block)
 struct fullPack unPackCodeword(uint32_t codeword) {
         struct fullPack newPack;
         newPack.pack.a = Bitpack_getu(codeword, 9, 23);
+        
         newPack.pack.b = Bitpack_gets(codeword, 5, 18);
+        
         newPack.pack.c = Bitpack_gets(codeword, 5, 13);
+
         newPack.pack.d = Bitpack_gets(codeword, 5, 8);
+
         newPack.pb = Bitpack_getu(codeword, 4, 4);
         newPack.pr = Bitpack_getu(codeword, 4, 0);
         return newPack;
@@ -591,6 +596,7 @@ A2 encode(A2 vComp, A2Methods_T methods)
         A2 codeWords = methods->new(width, height, sizeof(uint32_t));
         struct mappingCl bundle = {codeWords, methods};
         methods->map_default(packArr, applyEncode, &bundle);
+        methods->free(&packArr);
         
         return codeWords;
 }

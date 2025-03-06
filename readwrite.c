@@ -32,7 +32,8 @@ void applyPrintCodewords(int col, int row, A2Methods_UArray2 uarray2,
         assert(element != NULL);
         for (int i = 0; i < 4; i++)
         {
-                putchar(Bitpack_getu(*(uint32_t *) element, 8, i << 2));
+                // fprintf(stderr, "block.pack.a: %ld\n", Bitpack_getu(*(uint32_t *) element, 9, 23));
+                putchar(Bitpack_getu(*(uint32_t *) element, 8, i << 3));
         }
 }
 
@@ -81,8 +82,9 @@ void applyRead(int col, int row, A2Methods_UArray2 uarray2, void *element,
         FILE *input = (FILE *) cl;
         for (int i = 0; i < 4; i++)
         {
-                codeWord = Bitpack_newu(codeWord, fgetc(input), 8, i << 2);
+                codeWord = Bitpack_newu(codeWord, 8, i << 3, fgetc(input));
         }
+        // fprintf(stderr, "codeWord: %x\n", codeWord);
         *(uint32_t *) element = codeWord;
 }
 
@@ -113,7 +115,7 @@ void applyRead(int col, int row, A2Methods_UArray2 uarray2, void *element,
         int c = getc(input);
         assert(c == '\n');
         A2Methods_UArray2 inputData = 
-                                  methods->new(width, height, sizeof(uint64_t));
+                          methods->new(width / 2, height / 2, sizeof(uint32_t));
         methods->map_default(inputData, applyRead, input);
         return inputData;
 }
