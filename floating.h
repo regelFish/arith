@@ -1,4 +1,11 @@
-//TODO: File contract
+/*
+ * blockPack.h
+ * by Rigoberto Rodriguez-Anton (rrodi08), Rebecca Lee (rlee19)
+ * arith
+ *
+ * Allows a user to convert the values of a pixel from RGB values to video
+ * component or from video component to RGB.
+ */
 
 #ifndef FLOATING_H
 #define FLOATING_H

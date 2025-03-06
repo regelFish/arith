@@ -7,29 +7,34 @@
  * of pixels into 32-bit words
  */
 
-#include "bitpack.h" 
-#include "except.h"
+/* C standard library */
 #include <assert.h>
 #include <stdio.h>
+
+/* CS 40 */
+#include "bitpack.h" 
+#include "except.h"
+
+/* Exception in the case of overflow when packing bits */
 Except_T Bitpack_Overflow = { "Overflow packing bits" };
 
-/* betterShiftL TODO: Complete function contract
+/* betterShiftL
  * 
- * Returns whether or not an unsigned integer `n` can be represented by `width`
- * bits.
+ * Provides functionality for a bitwise left-shift operation that shifts a long
+ * unsigned integer left by a provided shift amount but wraps shifts of 64 or
+ * greater to 0.
  * 
- *     uint64_t n        an unsigned integer to be checked whether it can be
- *                       represented by `width` bits or not.asm
- *     unsigned width    the number of bits that will be used to represent an
- *                       integer.
+ * Parameters
+ *     uint64_t n        a long unsigned integer whose bits will be shifted left
+ *     unsigned shift    the power of 2 of bits that `n` will be shifted left by
+ *                       (so a shift of 3 will shift left by 2^3 = 8 bits)
  *
  * Returns
- *     bool              indicator of whether or not `n` can be represented by
- *                       `width` bits 
+ *     uint64_t          the integer resulting from `n` being shifted to the
+ *                       left by `shift`
  * 
  * Notes
- *     Always returns true for width 64+ because the input is always of max size
- *     64 bits.
+ *     Returns 0 if `shift` is equal to or greater than 64.
  *
  */
 uint64_t betterShiftL(uint64_t n, unsigned shift)
@@ -40,23 +45,24 @@ uint64_t betterShiftL(uint64_t n, unsigned shift)
         return n << shift;
 }
 
-/* betterShiftRU TODO: Complete function contract
+/* betterShiftRU
  * 
- * Returns whether or not an unsigned integer `n` can be represented by `width`
- * bits.
+ * Provides functionality for a bitwise right-shift operation that shifts a long
+ * unsigned integer right by a provided shift amount but wraps shifts of 64 or
+ * greater to 0.
  * 
- *     uint64_t n        an unsigned integer to be checked whether it can be
- *                       represented by `width` bits or not.asm
- *     unsigned width    the number of bits that will be used to represent an
- *                       integer.
+ * Parameters
+ *     uint64_t n        a long unsigned integer whose bits will be shifted
+ *                       right
+ *     unsigned shift    the power of 2 of bits that `n` will be shifted right
+ *                       by (so a shift of 3 will shift right by 2^3 = 8 bits)
  *
  * Returns
- *     bool              indicator of whether or not `n` can be represented by
- *                       `width` bits 
+ *     uint64_t          the integer resulting from `n` being shifted to the
+ *                       right by `shift`
  * 
  * Notes
- *     Always returns true for width 64+ because the input is always of max size
- *     64 bits.
+ *     Returns 0 if `shift` is equal to or greater than 64.
  *
  */
 uint64_t betterShiftRU(uint64_t n, unsigned shift)
@@ -67,23 +73,25 @@ uint64_t betterShiftRU(uint64_t n, unsigned shift)
         return n >> shift;
 }
 
-/* BetterShiftRS TODO: Complete function contract
+/* betterShiftRS
  * 
- * Returns whether or not an unsigned integer `n` can be represented by `width`
- * bits.
+ * Provides functionality for a bitwise right-shift operation that shifts a long
+ * signed integer right by a provided shift amount but wraps shifts of 64 or
+ * greater to 0 if `n` is positive or -1 if `n` is negative.
  * 
- *     uint64_t n        an unsigned integer to be checked whether it can be
- *                       represented by `width` bits or not.asm
- *     unsigned width    the number of bits that will be used to represent an
- *                       integer.
+ * Parameters
+ *     int64_t n         a long signed integer whose bits will be shifted
+ *                       right
+ *     unsigned shift    the power of 2 of bits that `n` will be shifted right
+ *                       by (so a shift of 3 will shift right by 2^3 = 8 bits)
  *
  * Returns
- *     bool              indicator of whether or not `n` can be represented by
- *                       `width` bits 
+ *     uint64_t          the integer resulting from `n` being shifted to the
+ *                       right by `shift`
  * 
  * Notes
- *     Always returns true for width 64+ because the input is always of max size
- *     64 bits.
+ *     Returns 0 if `shift` is equal to or greater than 64 and `n` is positive.
+ *     Returns -1 if `shift` is equal to or greater than 64 and `n` is positive.
  *
  */
 uint64_t betterShiftRS(int64_t n, unsigned shift)
@@ -103,14 +111,15 @@ uint64_t betterShiftRS(int64_t n, unsigned shift)
  * Returns whether or not an unsigned integer `n` can be represented by `width`
  * bits.
  * 
+ * Parameters
  *     uint64_t n        an unsigned integer to be checked whether it can be
- *                       represented by `width` bits or not.asm
+ *                       represented by `width` bits or not.
  *     unsigned width    the number of bits that will be used to represent an
  *                       integer.
  *
  * Returns
- *     bool              indicator of whether or not `n` can be represented by
- *                       `width` bits 
+ *     bool fits         indicator of whether or not `n` can be represented by
+ *                       `width` bits (true or false)
  * 
  * Notes
  *     Always returns true for width 64+ because the input is always of max size
@@ -121,6 +130,7 @@ bool Bitpack_fitsu(uint64_t n, unsigned width)
 {
         bool fits = ((n < betterShiftL(1, width)) || !betterShiftL(1, width));
         return fits;
+        
 }
 
 /* Bitpack_fitss
@@ -128,12 +138,15 @@ bool Bitpack_fitsu(uint64_t n, unsigned width)
  * This function checks if a given integer, n, can be represented by width bits
  * in a two's complement signed representation.
  * 
- *     int64_t n      : The signed integer to check.
- *     unsigned width : The width to check with. 
+ * Parameters
+ *     int64_t n        an signed integer to be checked whether it can be
+ *                      represented by `width` bits or not.
+ *     unsigned width   the number of bits that will be used to represent an
+ *                      integer. 
  *
  * Returns
- *     Returns true if the given integer can be represented in width bits within
- *     a two's complement signed notation.
+ *     bool fits         indicator of whether or not `n` can be represented by
+ *                       `width` bits (true or false)
  * 
  * Notes
  *     Always returns true for width 64+ because the input is always of max size
@@ -153,12 +166,12 @@ bool Bitpack_fitss(int64_t n, unsigned width)
  * Extracts the field from a word given the width of the field and the location
  * of the field's least significant bit for unsigned integers
  * 
- *     int64_t word   : The word to extract from.
- *     unsigned width : The width of the field to be extracted. 
- *     unsigned lsb   : The location of the field's least significant bit.
+ *     int64_t word     The word to extract from.
+ *     unsigned width   The width of the field to be extracted. 
+ *     unsigned lsb     The location of the field's least significant bit.
  *
  * Returns
- *     uint64_t       the bits extracted from the word between width and lsb
+ *     uint64_t field   the bits extracted from the word between width and lsb
  * 
  * Notes
  *     Will CRE if given width < 0 or if given width > 64.
@@ -182,9 +195,9 @@ uint64_t Bitpack_getu(uint64_t word, unsigned width, unsigned lsb)
  * Extracts the field from a word given the width of the field and the location
  * of the field's least significant bit for signed integers
  * 
- *     int64_t word   : The word to extract from.
- *     unsigned width : The width of the field to be extracted. 
- *     unsigned lsb   : The location of the field's least significant bit.
+ *     int64_t word     The word to extract from.
+ *     unsigned width   The width of the field to be extracted. 
+ *     unsigned lsb     The location of the field's least significant bit.
  *
  * Returns
  *     int64_t       the bits extracted from the word between width and lsb
@@ -213,6 +226,7 @@ int64_t Bitpack_gets(uint64_t word, unsigned width, unsigned lsb)
  * This function checks if a given integer, n, can be represented by width bits
  * in a two's complement signed representation.
  * 
+ * Parameters
  *     int64_t n      : The signed integer to check.
  *     unsigned width : The width to check with. 
  *
@@ -263,12 +277,10 @@ uint64_t Bitpack_news(uint64_t word, unsigned width, unsigned lsb,
         if (!Bitpack_fitss(value, width)) {
                 RAISE(Bitpack_Overflow);
         }
-        uint64_t mask = betterShiftL((betterShiftL(1, width) - 1), lsb);
-        // fprintf(stderr, "Value: %lx\n", value);
-        value = mask & betterShiftL(value, lsb);
-        // fprintf(stderr, "Mask: %lx\n", mask);
 
+        uint64_t mask = betterShiftL((betterShiftL(1, width) - 1), lsb);
+        value = mask & betterShiftL(value, lsb);
         word = (word & ~mask) | value;
-        // fprintf(stderr, "Word: %lx\n", word);
+
         return word;
 }

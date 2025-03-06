@@ -1,5 +1,4 @@
 #include <string.h>
-
 #include <a2blocked.h>
 #include "uarray2b.h"
 

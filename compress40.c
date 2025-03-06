@@ -111,23 +111,27 @@ void trim(Pnm_ppm *image, A2Methods_T methods)
 
  /* compress40
   * 
-  * TODO: Description
+  * Compresses a valid PPM image given from a filename or `stdin`
   * 
   * Parameters
-  *      
+  *      FILE *input    a file pointer to a valid PPM image
   *
   * Returns
   *      None (void)
   *
   * Notes
-  *      
+  *     Will CRE if input is NULL.
+  *     Will CRE if methods used to manipulate arrays is NULL.
+  *     Allocates memory for and frees memory for a Pnm_ppm struct.
+  *     Allocates memory for and frees memory for A2 vComp.
+  *     Allocates memory for and frees memory for A2 codeWords.
+  *     Prints to `stdout`.
   *      
   */
 extern void compress40(FILE *input)
 {
         assert(input != NULL);
         /* default to UArray2 methods */
-        /* TODO: decide whether we need other methods*/
         A2Methods_T methods = uarray2_methods_plain;
         assert(methods != NULL);
 
@@ -147,29 +151,60 @@ extern void compress40(FILE *input)
         A2 codeWords = encode(vComp, methods);
         methods->free(&vComp);
 
+        /* prints the header and codewords of the compressed image to `stdout`*/
         fprintf(stdout, "COMP40 Compressed image format 2\n%u %u\n", 
                                                    image->width, image->height);
         printCodeWords(codeWords, methods);
+
         methods->free(&codeWords);
         Pnm_ppmfree(&image);
 }
 
+ /* decompress40
+  * 
+  * Decompresses a valid PPM image given from a filename or `stdin`
+  * 
+  * Parameters
+  *      FILE *input    a file pointer to a valid PPM image
+  *
+  * Returns
+  *      None (void)
+  *
+  * Notes
+  *     Will CRE if input is NULL.
+  *     Will CRE if methods used to manipulate arrays is NULL.
+  *     Allocates memory for and frees memory for an array to hold image's
+  *     pixels.
+  *     Allocates memory for and frees memory for A2 codeWords.
+  *     Allocates memory for and frees memory for A2 vComp.
+  *     Writes a PPM image to `stdout`.
+  *      
+  */
 extern void decompress40(FILE *input)
 {
         assert(input != NULL);
+        /* default to UArray2 methods */
         A2Methods_T methods = uarray2_methods_plain;
         assert(methods != NULL);
+
+        /* Reading the given compressed image */
         A2 codeWords = readCompressed(input, methods);
+
+        /* initialize an array and PPM struct to hold the unpacked raster */
         unsigned width = methods->width(codeWords) * 2;
         unsigned height = methods->height(codeWords) * 2;
         struct Pnm_ppm image = {width, height, 255, codeWords, methods};
+
+        /* Convert from compressed codewords to video components */
         A2 vComp = decode(codeWords, methods);
         methods->free(&codeWords);
+
+        /* converting the image to RGB */
         image.pixels = VCtoRGB(vComp, methods, image.denominator);
         methods->free(&vComp);
+
+        /* writes the decompressed image to `stdout`*/
         Pnm_ppmwrite(stdout, (struct Pnm_ppm *)&image);
         methods->free(&(image.pixels));
-        // Pnm_ppmfree(&image);
-        //We need Pnm_ppm *image
 }
 

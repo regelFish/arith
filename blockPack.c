@@ -10,19 +10,27 @@
 #include "blockPack.h"
 #include "bitpack.h"
 
-struct abcd {
+/*******************************************************************************
+ * Structs
+ ******************************************************************************/
+/* a struct to hold unquantized a, b, c, d values from a 2-by-2 block*/
+ struct abcd {
         float a, b, c, d;
 };
 
+/* a struct to hold untransformed Y video component values of a 2-by-2 block*/
 struct myYs {
         float Y1, Y2, Y3, Y4;
 };
 
+/* a struct to hold quantized a, b, c, d values from a 2-by-2 block*/
 struct pack {
         unsigned a;
         int b, c, d;
 };
 
+/* a struct to hold a pack (quantized a, b, c, d values) and pb, pr 
+ * from a 2-by-2 block*/
 struct fullPack {
         struct pack pack;
         unsigned pb, pr;
@@ -525,15 +533,16 @@ struct fullPack unPackCodeword(uint32_t codeword) {
  * into a 32-bit word
  *
  * Parameters
- *      int col                the column of the top-left pixel in a 2-by-2
- *                             block of pixels.
- *      int row                the row of the top-left pixel in a 2-by-2
- *                             block of pixels.
- *      A2 uarray2             the array of pixels of a PPM image in video
- *                             component format.
- *      void *element          A pointer to the current element worked on.
- *      void *cl               A bundle containing the array we are writing to,
- *                             as well as the methods to manipulate the arrays.
+ *      int col                the column of an array that holds the fullPack
+ *                             structs containing values to be encoded (packed).
+ *      int row                the row of an array that holds the fullPack
+ *                             structs containing values to be encoded (packed).
+ *      A2 uarray2             the array of fullPack structs
+ *      void *element          A pointer to the current fullPack struct with
+ *                             elements being encoded (packed)
+ *      void *cl               A bundle containing the array which will hold the
+ *                             codewords as well as the methods to manipulate
+ *                             the arrays.
  *
  * Returns
  *      None (void)
@@ -603,19 +612,20 @@ A2 encode(A2 vComp, A2Methods_T methods)
 
 /* applyunEncode TODO: Complete function contract
  *
- * Apply function that uses unencode to unpack the values of a, b, c, and d, pb,
- * and pr from a 32-bit code word.
+ * Apply function that uses unencode to unpack the values of a, b, c, d, pb, and
+ * pr from a 32-bit word
  *
  * Parameters
- *      int col                the column of the top-left pixel in a 2-by-2
- *                             block of pixels.
- *      int row                the row of the top-left pixel in a 2-by-2
- *                             block of pixels.
- *      A2 uarray2             the array of pixels of a PPM image in video
- *                             component format.
- *      void *element          A pointer to the current element worked on.
- *      void *cl               A bundle containing the array we are writing to,
- *                             as well as the methods to manipulate the arrays.
+ *      int col                the column of an array that holds the codewords
+ *                             containing values to be unencoded (unpacked).
+ *      int row                the row of an array that holds the codewords
+ *                             containing values to be unencoded (unpacked).
+ *      A2 uarray2             the array of codewords (uint32_t unsigned ints)
+ *      void *element          A pointer to the current codeword with
+ *                             elements being decoded (unpacked)
+ *      void *cl               A bundle containing the array which will hold the
+ *                             unpacked values in fullPack structs as well as
+ *                             the methods to manipulate the arrays.
  *
  * Returns
  *      None (void)

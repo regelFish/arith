@@ -1,7 +1,7 @@
 /*
  * a2plain.c
  * by Lucie Bao (cbao02), Rebecca Lee (rlee19)
- * locality
+ * arith (originally for locality)
  *
  * Implements the A2Methods interface for plain `UArray2`s. A2Methods is a
  * methods suite that allows for 2D array operations to be agnostic of the
