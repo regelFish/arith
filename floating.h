@@ -1,3 +1,5 @@
+//TODO: File contract
+
 #ifndef FLOATING_H
 #define FLOATING_H
 

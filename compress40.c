@@ -11,6 +11,7 @@
 #include "pnm.h"
 #include "a2methods.h"
 #include "a2plain.h"
+#include "readwrite.h"
 #include "blockPack.h"
 #include "bitpack.h"
 #include <assert.h>
@@ -107,52 +108,6 @@ void trim(Pnm_ppm *image, A2Methods_T methods)
         }
 }
 
- /* applyPrintCodewords
-  * 
-  * TODO: Description
-  * 
-  * Parameters
-  *      
-  *
-  * Returns
-  *      None (void)
-  *
-  * Notes
-  *      
-  *      
-  */
-void applyPrintCodewords(int col, int row, A2 uarray2, void *element, void *cl)
-{
-        (void) cl;
-        (void) row;
-        (void) col;
-        (void) uarray2;
-        assert(element != NULL);
-        for (int i = 0; i < 4; i++)
-        {
-                putchar(Bitpack_getu(*(uint32_t *) element, 8, i << 2));
-        }
-}
-
- /* printCodeWords
-  * 
-  * TODO: Description
-  * 
-  * Parameters
-  *      
-  *
-  * Returns
-  *      None (void)
-  *
-  * Notes
-  *      
-  *      
-  */
-void printCodeWords(A2 codeWords, A2Methods_T methods)
-{
-        methods->map_default(codeWords, applyPrintCodewords, NULL);
-}
-
 
  /* compress40
   * 
@@ -199,13 +154,7 @@ extern void compress40(FILE *input)
 
         
         
-        /* TODO: Remove testing functions here.*/
-        vComp = decode(codeWords, methods);
-        methods->free(&codeWords);
-        image->pixels = VCtoRGB(vComp, methods, image->denominator);
-        methods->free(&vComp);
-        //Pnm_ppmwrite(stdout, image);
-        Pnm_ppmfree(&image);
+
 
 }
 
@@ -214,7 +163,15 @@ extern void decompress40(FILE *input)
         assert(input != NULL);
         A2Methods_T methods = uarray2_methods_plain;
         assert(methods != NULL);
-        Pnm_ppm image = Pnm_ppmread(input, methods);
+        A2 codeWords = readCompressed(input, methods);
+        struct Pnm_ppm *image;
+        image->width = methods->width(codeWords);
+        image->height = methods->height(codeWords);
+        image->denominator = 255;
+        A2 vComp = decode(codeWords, methods);
+        methods->free(&codeWords);
+        image->pixels = VCtoRGB(vComp, methods, image->denominator);
+        methods->free(&vComp);
         Pnm_ppmwrite(stdout, image);
         Pnm_ppmfree(&image);
 }
