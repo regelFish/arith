@@ -178,7 +178,6 @@ bool Bitpack_fitss(int64_t n, unsigned width)
  *     Will CRE if the sum of given width and lsb > 64.
  *     Always returns true for width 64+ because the input is always of max size
  *     64 bits.
- *     TODO: Test that width is always >= 0.
  */
 uint64_t Bitpack_getu(uint64_t word, unsigned width, unsigned lsb)
 {
@@ -207,7 +206,6 @@ uint64_t Bitpack_getu(uint64_t word, unsigned width, unsigned lsb)
  *     Will CRE if the sum of given width and lsb > 64.
  *     Always returns true for width 64+ because the input is always of max size
  *     64 bits.
- *     TODO: Test that width is always >= 0.
  */
 int64_t Bitpack_gets(uint64_t word, unsigned width, unsigned lsb)
 {
@@ -223,18 +221,17 @@ int64_t Bitpack_gets(uint64_t word, unsigned width, unsigned lsb)
 
 /* Bitpack_newu TODO
  * 
- * This function checks if a given integer, n, can be represented by width bits
- * in a two's complement signed representation.
+ * This function takes a 64 bit word and inserts an unsigned value into that word
+ * using the given width and least significant bit.
  * 
  * Parameters
- *     int64_t n      : The signed integer to check.
+ *     int64_t n      : A copy of the unsigned integer to modify.
  *     unsigned width : The width to check with. 
  *
  * Returns
  *     Returns true if the given integer can be represented in width bits within
  *     a two's complement signed notation.
  * 
- *
  */
 uint64_t Bitpack_newu(uint64_t word, unsigned width, unsigned lsb, 
                                                                 uint64_t value)
